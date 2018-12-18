@@ -14,7 +14,9 @@ class TaskController extends Controller
      */
     public function index()
     {
-        //
+        $tasks = Task::all();
+
+        return view('tasks.index', compact('tasks',$tasks));
     }
 
     /**
@@ -24,7 +26,7 @@ class TaskController extends Controller
      */
     public function create()
     {
-        //
+        return view('tasks.create');
     }
 
     /**
@@ -35,7 +37,14 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'title' => 'required|min:3',
+            'description' => 'required',
+        ]);
+
+        $task = Task::create(['title' => $request->title, 'description' => $request->description]);
+
+        return redirect('/tasks/'.$task->id);
     }
 
     /**
@@ -46,7 +55,7 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        //
+        return view('tasks.show', compact('task', $task));
     }
 
     /**
@@ -57,7 +66,7 @@ class TaskController extends Controller
      */
     public function edit(Task $task)
     {
-        //
+        return view('tasks.edit', compact('task', $task));
     }
 
     /**
@@ -69,7 +78,16 @@ class TaskController extends Controller
      */
     public function update(Request $request, Task $task)
     {
-        //
+        $request->validate([
+            'title' => 'required|min:3',
+            'description' => 'required',
+        ]);
+
+        $task->title = $request->title;
+        $task->description = $request->description;
+        $task->save();
+        $request->session()->flash('message', 'Successfully modified the task!');
+        return redirect('tasks');
     }
 
     /**
@@ -78,8 +96,11 @@ class TaskController extends Controller
      * @param  \App\Task  $task
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Task $task)
+    public function destroy(Request $request, Task $task)
     {
-        //
+        $task->delete();
+        $request->session()->flash('message', 'Successfuly deleted the task !');
+        return redirect('tasks');
+
     }
 }
